@@ -6,12 +6,16 @@ struct BMPHEADER *get_bmpheader(FILE *image, int *offset)
 {
     struct BMPHEADER *bmpheader = malloc(sizeof(struct BMPHEADER));
 
-    fread(bmpheader->MagicNumbers, sizeof(*bmpheader->MagicNumbers), sizeof(bmpheader->MagicNumbers), image);
+    fread(bmpheader->Magic_Numbers, sizeof(*bmpheader->Magic_Numbers), sizeof(bmpheader->Magic_Numbers), image);
 
-    if(bmpheader->MagicNumbers[0] != 0x42 || bmpheader->MagicNumbers[1] != 0x4d)
+    *offset += sizeof(*bmpheader->Magic_Numbers);
+
+    if(bmpheader->Magic_Numbers[0] != 0x42 || bmpheader->Magic_Numbers[1] != 0x4d)
         return NULL;
         
     fread(&(bmpheader->Size), 1, sizeof(bmpheader->Size), image);
+
+    *offset += sizeof(bmpheader->Size);
 
     if(!bmpheader->Size)
         return NULL;
@@ -26,11 +30,13 @@ struct BMPHEADER *get_bmpheader(FILE *image, int *offset)
     return bmpheader;
 }
 
-struct BITMAPINFOHEADER *get_dibheader(FILE *image)
+struct BITMAPINFOHEADER *get_dibheader(FILE *image, int *offset)
 {
     struct BITMAPINFOHEADER *dibheader = malloc(sizeof(struct BITMAPINFOHEADER));
 
     fread(&(dibheader->Size), 1, sizeof(dibheader->Size), image);
+
+    *offset += sizeof(dibheader->Size);
 
     if(dibheader->Size != 40)
         return NULL;
@@ -50,11 +56,6 @@ struct BITMAPINFOHEADER *get_dibheader(FILE *image)
     fread(&(dibheader->ClrUsed), 1, sizeof(dibheader->ClrUsed), image);
     fread(&(dibheader->ClrImportant), 1, sizeof(dibheader->ClrImportant), image);
 
+    *offset = 54;
     return dibheader;
 }
-
-// struct RGB getpixel(RGB)
-// {
-    // struct PIXEL pixel = {colors[2], colors[1], colors[0]};
-    // return pixel;
-// }

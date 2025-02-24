@@ -5,11 +5,10 @@
 #include <stdint.h>
 
 struct BMPHEADER *get_bmpheader(FILE *, int *);
-struct BITMAPINFOHEADER *get_dibheader(FILE *);
-struct PIXEL getpixel(char *);
+struct BITMAPINFOHEADER *get_dibheader(FILE *, int *);
 
 struct BMPHEADER {
-    uint8_t MagicNumbers[2];
+    uint8_t Magic_Numbers[2];
     uint32_t Size;
     uint16_t Reversed1;
     uint16_t Reversed2;
