@@ -4,8 +4,12 @@
 #include <stdio.h>
 #include <stdint.h>
 
-struct BMPHEADER *get_bmpheader(FILE *, int *);
-struct BITMAPINFOHEADER *get_dibheader(FILE *, int *);
+struct BMPHEADER *create_bmpheader(int *, int size);
+struct BITMAPINFOHEADER *create_dibinfoheader(int *);
+
+#define BI_RGB 0
+
+#define RGB 24
 
 struct BMPHEADER {
     uint8_t Magic_Numbers[2];

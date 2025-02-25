@@ -23,8 +23,8 @@ void blue(int width, int height, struct RGB24 pixels[width][height])
         {
             uint8_t avg = (pixels[row][column].Red + pixels[row][column].Blue + pixels[row][column].Green) / 3; 
             pixels[row][column].Red = 0x00;
-            pixels[row][column].Green = 0x00;
-            pixels[row][column].Blue = 0xFF;
+            pixels[row][column].Green = 0xFF;
+            pixels[row][column].Blue = 0x00;
         }
     }
 }
