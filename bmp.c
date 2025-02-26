@@ -5,6 +5,8 @@
 struct BMPHEADER *create_bmpheader(int *offset, int size)
 {
     struct BMPHEADER *bmpheader = malloc(sizeof(struct BMPHEADER));
+    if(bmpheader == NULL)
+        return NULL;
 
     bmpheader->Magic_Numbers[0] = 0x42;
     bmpheader->Magic_Numbers[1] = 0x4D;
@@ -22,10 +24,14 @@ struct BMPHEADER *create_bmpheader(int *offset, int size)
 struct BITMAPINFOHEADER *create_dibinfoheader(int *offset)
 {
     struct BITMAPINFOHEADER *dibheader = malloc(sizeof(struct BITMAPINFOHEADER));
+    if(dibheader == NULL)
+        return NULL;
 
+    // 40 -> BITMAPINFOHEADER 
     dibheader->Size = 40;
-    dibheader->Width = 100;
-    dibheader->Height = 100;
+
+    dibheader->Width = 1024;
+    dibheader->Height = 1024;
     dibheader->Planes = 1;
     dibheader->BitCount = RGB;
     dibheader->Compression = BI_RGB;

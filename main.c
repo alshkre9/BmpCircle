@@ -1,54 +1,56 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <string.h>
 #include <stdint.h>
 
 #include "bmp.h"
-#include "operations.h"
+#include "helper.h"
 
-int inarray(char *array[], int len, char *s);
-char *getexte(char *filename);
+enum BACKGROUNDS {BLACK = 01};
 
-enum FILTERS {BLUE = 1};
+char *BACKGROUNDS[] = {
+    "black", /* black background */
+};
 
 char *filename = "output.bmp";
-
-char *operations[] = {
-    "blue", /* blue background */
-};
 
 int main(int argc, char *argv[])
 {
     if(argc != 2)
     {
-        printf("USAGE: ./Program Operation\n");
+        printf("USAGE: ./Program Background\n");
         return 1;
     }
 
     int operation;
-    if(!(operation = inarray(operations, sizeof(operations) / sizeof(char *), *++argv)))
+    if(!(operation = inarray(BACKGROUNDS, sizeof(BACKGROUNDS) / sizeof(char *), *++argv)))
     {
-        printf("%s operation not supported\n", *argv);
+        printf("%s not supported\n", *argv);
         return 2;
     }
-    
-    int offset = 0;
-    
-    struct BMPHEADER *bmpheader = create_bmpheader(&offset, (100 * 100 * 24) + 54);
-    
-    struct BITMAPINFOHEADER *dibheader = create_dibinfoheader(&offset);
 
+    int offset = 0;
+
+    struct BITMAPINFOHEADER *dibheader = create_dibinfoheader(&offset);
+    
+    int holder = (dibheader->Width * (RGB/8) % 4);
+    int padding = !holder ? 0 : 4 - holder;
+
+    struct BMPHEADER *bmpheader = create_bmpheader(&offset, (dibheader->Height * dibheader->Width * (RGB/8)) + 54 + dibheader->Height * padding);
+    
+    /* 2D pixels table*/
     struct RGB24 pixels[dibheader->Height][dibheader->Width];
 
     switch (operation)
     {
-    case BLUE:
-        blue(dibheader->Width, dibheader->Height, pixels);
+    case BLACK:
+        black(dibheader->Width, dibheader->Height, pixels);
         break;
     default:
         break;
     }
+
+    draw_circle(dibheader->Width, dibheader->Height, pixels);
 
     /* Create new bmp file */
 
@@ -71,6 +73,8 @@ int main(int argc, char *argv[])
     fwrite(&(dibheader->ClrUsed), sizeof(dibheader->ClrUsed), 1, image);
     fwrite(&(dibheader->ClrImportant), sizeof(dibheader->ClrImportant), 1, image);
 
+    uint8_t dummy[3];
+
     for(int row = 0; row < dibheader->Height; row++)
     {
         for(int column = 0; column < dibheader->Width; column++)
@@ -78,9 +82,12 @@ int main(int argc, char *argv[])
             fwrite(&pixels[row][column].Blue, sizeof(pixels[row][column].Blue), 1,image);
             fwrite(&pixels[row][column].Green, sizeof(pixels[row][column].Green), 1,image);
             fwrite(&pixels[row][column].Red, sizeof(pixels[row][column].Red), 1,image);
+            
+            // add padding
+            if ((column + 1 == dibheader->Width))
+                fwrite(dummy, 1, padding, image);
         }
     }
-
 
     free(bmpheader);
     free(dibheader);
@@ -90,19 +97,3 @@ int main(int argc, char *argv[])
     exit(0);
 }
 
-int inarray(char *array[], int len, char *s)
-{
-    int i;
-    for(i = 0; i < len; i++)
-        if(!strcmp(array[i], s))
-            return i + 1;
-
-    return 0;
-}
-
-char *getexte(char *filename)
-{
-    while(*filename != '.' && *filename != '\0') filename++;
-
-    return filename;
-}
