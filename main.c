@@ -12,20 +12,35 @@ char *BACKGROUNDS[] = {
     "black", /* black background */
 };
 
+
+enum SHAPES {CIRCLE = 01, RECTANGLE = 02};
+
+char *SHAPES[] = {
+    "circle",
+    "rectangle"
+};
+
 char *filename = "output.bmp";
 
 int main(int argc, char *argv[])
 {
-    if(argc != 2)
+    if(argc != 3)
     {
-        printf("USAGE: ./Program Background\n");
+        printf("usage: ./program <background> <shape>\n");
         return 1;
     }
 
-    int operation;
-    if(!(operation = inarray(BACKGROUNDS, sizeof(BACKGROUNDS) / sizeof(char *), *++argv)))
+    int background;
+    if(!(background = inarray(BACKGROUNDS, sizeof(BACKGROUNDS) / sizeof(char *), *++argv)))
     {
-        printf("%s not supported\n", *argv);
+        printf("%s is not supported\n", *argv);
+        return 2;
+    }
+
+    int shape;
+    if(!(shape = inarray(SHAPES, sizeof(SHAPES) / sizeof(char *), *++argv)))
+    {
+        printf("%s is not supported\n", *argv);
         return 2;
     }
 
@@ -41,7 +56,7 @@ int main(int argc, char *argv[])
     /* 2D pixels table*/
     struct RGB24 pixels[dibheader->Height][dibheader->Width];
 
-    switch (operation)
+    switch (background)
     {
     case BLACK:
         black(dibheader->Width, dibheader->Height, pixels);
@@ -50,7 +65,17 @@ int main(int argc, char *argv[])
         break;
     }
 
-    draw_circle(dibheader->Width, dibheader->Height, pixels);
+    switch (shape)
+    {
+    case CIRCLE:
+        draw_circle(dibheader->Width, dibheader->Height, pixels);
+        break;
+    case RECTANGLE:
+        draw_rectangle(dibheader->Width, dibheader->Height, pixels);
+        break;
+    default:
+        break;
+    }
 
     /* Create new bmp file */
 

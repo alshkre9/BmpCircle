@@ -1,5 +1,7 @@
 #include <math.h>
 #include <string.h>
+#include <stdlib.h>
+#include <ctype.h>
 
 #include "bmp.h"
 #include "helper.h"
@@ -26,6 +28,26 @@ void draw_circle(int width, int height, struct RGB24 pixels[width][height])
     }
 }
 
+void draw_rectangle(int width, int height, struct RGB24 pixels[width][height])
+{
+    int length = 100;
+    int x_origin = (width/2);
+    int y_origin = (height/2);
+
+    for(int y = 0; y < height; y++)
+    {
+        for(int x = 0; x < width; x++)
+        {
+            if (abs(x - x_origin)  <= length && abs(y - y_origin) <= length && (abs(y - y_origin) >= length - 4 || abs(x - x_origin) >= length - 4))
+            {
+                pixels[y][x].Red = ~pixels[y][x].Red;
+                pixels[y][x].Green = ~pixels[y][x].Green; 
+                pixels[y][x].Blue = ~pixels[y][x].Blue;
+            }
+        }
+    }
+}
+
 void black(int width, int height, struct RGB24 pixels[width][height])
 {
     for(int row = 0; row < height; row++)
@@ -40,11 +62,22 @@ void black(int width, int height, struct RGB24 pixels[width][height])
     }
 }
 
+char *lowers(char * string)
+{
+    char *output = string;
+    while(*string)
+    {
+        *string = tolower(*string);
+        *string++;
+    }
+    return output;
+}
+
 int inarray(char *array[], int len, char *s)
 {
     int i;
     for(i = 0; i < len; i++)
-        if(!strcmp(array[i], s))
+        if(!strcmp(array[i], lowers(s)))
         return i + 1;
         
     return 0;
